@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('dashboard')}"></header>
+<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <!-- Pause banner: shows when sending is paused, and why -->
+    <div th:if="${paused}" class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p th:if="${pauseReason != null}" th:text="${pauseReason}">Paused automatically.</p>
+        <p th:unless="${pauseReason != null}">Sending is paused. Nothing is sent until you press Start sending.</p>
+        <form th:action="@{/sent/resume}" method="post"><button type="submit" class="btn btn-primary">Start sending</button></form>
+    </div>
+
+    <h1 class="text-2xl font-semibold">Today</h1>
+    <div class="mt-1 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-slate-600" th:text="${capacity.summary()}">About 24 emails fit in these hours.</p>
+        <form th:action="@{/backup/now}" method="post"><button type="submit" class="text-sm text-indigo-700 hover:underline">Back up the database now</button></form>
+    </div>
+
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="card !p-5">
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Sent today</p>
+            <p class="mt-1 text-3xl font-semibold"><span th:text="${sentToday}">0</span> <span class="text-base font-normal text-slate-500">of <span th:text="${dailyLimit}">15</span></span></p>
+            <p class="mt-2 text-sm text-slate-500">
+                <span th:if="${nextSend != null and !paused}">Next email at about <span th:text="${nextSend}">14:37</span></span>
+                <span th:unless="${nextSend != null and !paused}" th:text="${paused} ? 'Paused' : 'No email due right now'">Paused</span>
+            </p>
+        </div>
+        <div class="card !p-5">
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Waiting to send</p>
+            <p class="mt-1 text-3xl font-semibold" th:text="${waiting}">0</p>
+            <p class="mt-2 text-sm"><a th:href="@{/sent}" class="text-indigo-700 hover:underline">Open Sent</a></p>
+        </div>
+        <div class="card !p-5">
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Replies</p>
+            <p class="mt-1 text-3xl font-semibold" th:text="${repliesTotal}">0</p>
+            <p class="mt-2 text-sm text-slate-500">Reply rate <span th:text="${replyRate}">—</span></p>
+        </div>
+        <div class="card !p-5">
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Bounces</p>
+            <p class="mt-1 text-3xl font-semibold" th:text="${bouncesTotal}">0</p>
+            <p class="mt-2 text-sm text-slate-500"><span th:text="${bouncesToday}">0</span> today</p>
+        </div>
+    </div>
+
+    <div class="card mt-4 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm"><span class="font-semibold" th:text="${followUps}">0</span> emails are waiting for a follow-up.</p>
+        <a th:href="@{/inbox}" class="btn btn-secondary">Open Inbox</a>
+    </div>
+
+    <!-- Setup checklist: shown until setup is complete -->
+    <section th:unless="${setupDone}" class="mt-10">
+        <h2 class="text-lg font-semibold">Setup</h2>
+        <p class="mt-1 text-sm text-slate-600" th:text="${doneCount} + ' of ' + ${stepCount} + ' done.'">0 of 4 done.</p>
+        <ol class="mt-4 space-y-3">
+            <li th:each="step : ${steps}" class="card flex items-start gap-4 !p-4">
+                <span class="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold"
+                      th:classappend="${step.done()} ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'"
+                      th:text="${step.done()} ? '✓' : '!'">✓</span>
+                <div class="min-w-0 flex-1">
+                    <p class="font-medium" th:text="${step.title()}">Step</p>
+                    <p class="text-sm text-slate-600" th:text="${step.hint()}">Hint</p>
+                </div>
+                <a th:href="@{${step.link()}}" class="btn btn-secondary shrink-0" th:text="${step.linkLabel()}">Open</a>
+            </li>
+        </ol>
+    </section>
+</main>
+</body>
+</html>

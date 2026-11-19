@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<div th:fragment="preview" id="preview" class="card space-y-4">
+    <div th:if="${rendered.hasWarnings()}" class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p th:each="w : ${rendered.warnings()}" th:text="${w}">Warning</p>
+    </div>
+    <div>
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Subject</p>
+        <p class="mt-1 font-medium" th:text="${rendered.subject()}">Subject</p>
+    </div>
+    <div>
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">As the recruiter sees it</p>
+        <div class="mt-2 rounded-lg border border-slate-200 p-4 text-sm leading-relaxed [&_a]:text-indigo-700 [&_a]:underline [&_p]:mb-3"
+             th:utext="${rendered.htmlBody()}">Body</div>
+    </div>
+    <details class="text-sm">
+        <summary class="cursor-pointer text-slate-600">Plain-text version</summary>
+        <pre class="mt-2 whitespace-pre-wrap rounded-lg bg-slate-50 p-3 font-mono text-xs" th:text="${rendered.textBody()}">Text</pre>
+    </details>
+</div>
+</body>
+</html>

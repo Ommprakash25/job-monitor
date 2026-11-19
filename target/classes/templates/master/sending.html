@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Sending settings')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('master')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div class="flex flex-col gap-8 lg:flex-row">
+        <aside th:replace="~{fragments/layout :: masternav('sending')}"></aside>
+        <section class="min-w-0 flex-1">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+            <h1 class="text-2xl font-semibold">Sending settings</h1>
+            <p class="mt-1 text-sm text-slate-600">Changes apply from the next email. No restart needed.</p>
+
+            <form th:action="@{/master/sending}" th:object="${form}" method="post" class="mt-6 max-w-3xl space-y-6">
+                <div th:if="${#fields.hasErrors('*')}" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    Some settings need fixing. They're marked below.
+                </div>
+
+                <fieldset class="card space-y-5">
+                    <legend class="font-semibold">When</legend>
+                    <div>
+                        <p class="label">Sending days</p>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            <label th:each="day : ${weekDays}" class="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-1.5 text-sm">
+                                <input type="checkbox" th:field="*{sendingDays}" th:value="${day}" class="accent-indigo-600">
+                                <span th:text="${#strings.capitalize(#strings.toLowerCase(day.name()))}">Monday</span>
+                            </label>
+                        </div>
+                        <p class="field-error" th:if="${#fields.hasErrors('sendingDays')}" th:errors="*{sendingDays}"></p>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-3"
+                         hx-post="/master/sending/estimate" hx-trigger="input changed delay:300ms" hx-include="closest form" hx-target="#capacity" hx-swap="outerHTML">
+                        <div>
+                            <label class="label" for="windowStart">From</label>
+                            <input class="input" id="windowStart" type="time" th:field="*{windowStart}">
+                            <p class="field-error" th:if="${#fields.hasErrors('windowStart')}" th:errors="*{windowStart}"></p>
+                        </div>
+                        <div>
+                            <label class="label" for="windowEnd">Until</label>
+                            <input class="input" id="windowEnd" type="time" th:field="*{windowEnd}">
+                            <p class="field-error" th:if="${#fields.hasErrors('windowEnd')}" th:errors="*{windowEnd}"></p>
+                        </div>
+                        <div>
+                            <label class="label" for="timeZone">Time zone</label>
+                            <select class="input" id="timeZone" th:field="*{timeZone}">
+                                <option th:each="z : ${timeZones}" th:value="${z}" th:text="${z}">Asia/Kolkata</option>
+                            </select>
+                            <p class="field-error" th:if="${#fields.hasErrors('timeZone')}" th:errors="*{timeZone}"></p>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="label">Days off</p>
+                        <p class="hint">Holidays and other dates are set on <a th:href="@{/master/days-off}" class="text-indigo-700 underline">Days off</a>.</p>
+                    </div>
+                </fieldset>
+
+                <fieldset class="card space-y-5"
+                          hx-post="/master/sending/estimate" hx-trigger="input changed delay:300ms" hx-include="closest form" hx-target="#capacity" hx-swap="outerHTML">
+                    <legend class="font-semibold">Pace</legend>
+                    <div class="grid gap-4 sm:grid-cols-3">
+                        <div>
+                            <label class="label" for="gapMinMinutes">Shortest gap (minutes)</label>
+                            <input class="input" id="gapMinMinutes" type="number" min="1" max="120" th:field="*{gapMinMinutes}">
+                            <p class="field-error" th:if="${#fields.hasErrors('gapMinMinutes')}" th:errors="*{gapMinMinutes}"></p>
+                        </div>
+                        <div>
+                            <label class="label" for="gapMaxMinutes">Longest gap (minutes)</label>
+                            <input class="input" id="gapMaxMinutes" type="number" min="1" max="120" th:field="*{gapMaxMinutes}">
+                            <p class="field-error" th:if="${#fields.hasErrors('gapMaxMinutes')}" th:errors="*{gapMaxMinutes}"></p>
+                        </div>
+                        <div>
+                            <label class="label" for="dailyLimit">Daily limit</label>
+                            <input class="input" id="dailyLimit" type="number" min="1" max="500" th:field="*{dailyLimit}">
+                            <p class="field-error" th:if="${#fields.hasErrors('dailyLimit')}" th:errors="*{dailyLimit}"></p>
+                        </div>
+                    </div>
+                    <p class="hint">A new random gap is picked after every email. Start a new Gmail account at 10–15 a day and raise the limit week by week.</p>
+                    <div th:fragment="capacity" id="capacity" class="rounded-lg bg-indigo-50 px-4 py-3 text-sm text-indigo-900" th:text="${capacity.summary()}">About 24 emails fit.</div>
+                </fieldset>
+
+                <fieldset class="card space-y-5">
+                    <legend class="font-semibold">Who gets emailed</legend>
+                    <div x-data="{ never: false }" x-init="never = $refs.never.checked">
+                        <label class="label" for="recontactAfterDays">Email the same recruiter again after</label>
+                        <div class="mt-1 flex flex-wrap items-center gap-3">
+                            <input class="input !mt-0 w-28" id="recontactAfterDays" type="number" min="1" max="3650" th:field="*{recontactAfterDays}" x-bind:disabled="never">
+                            <span class="text-sm text-slate-600">days</span>
+                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" th:field="*{recontactNever}" x-ref="never" x-on:change="never = $event.target.checked" class="accent-indigo-600"> Never</label>
+                        </div>
+                        <p class="field-error" th:if="${#fields.hasErrors('recontactAfterDays')}" th:errors="*{recontactAfterDays}"></p>
+                    </div>
+                    <div>
+                        <p class="label">Per-company limit</p>
+                        <div class="mt-1 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+                            At most <input class="input !mt-0 w-24" type="number" min="1" max="100" th:field="*{companyLimitCount}">
+                            recruiters per company every <input class="input !mt-0 w-24" type="number" min="1" max="365" th:field="*{companyLimitDays}"> days
+                        </div>
+                        <p class="field-error" th:if="${#fields.hasErrors('companyLimitCount')}" th:errors="*{companyLimitCount}"></p>
+                        <p class="field-error" th:if="${#fields.hasErrors('companyLimitDays')}" th:errors="*{companyLimitDays}"></p>
+                    </div>
+                </fieldset>
+
+                <fieldset class="card space-y-5">
+                    <legend class="font-semibold">Follow-ups, safety and templates</legend>
+                    <div>
+                        <label class="label" for="followUpAfterDays">List an email under "Needs follow-up" after</label>
+                        <div class="mt-1 flex items-center gap-3"><input class="input !mt-0 w-28" id="followUpAfterDays" type="number" min="1" max="60" th:field="*{followUpAfterDays}"><span class="text-sm text-slate-600">days without a reply</span></div>
+                        <p class="hint">Nothing is sent automatically. You write each follow-up yourself.</p>
+                        <p class="field-error" th:if="${#fields.hasErrors('followUpAfterDays')}" th:errors="*{followUpAfterDays}"></p>
+                    </div>
+                    <div x-data="{ off: false }" x-init="off = $refs.off.checked">
+                        <label class="label" for="bouncePausePercent">Pause sending when bounces reach</label>
+                        <div class="mt-1 flex flex-wrap items-center gap-3">
+                            <input class="input !mt-0 w-28" id="bouncePausePercent" type="number" min="1" max="50" th:field="*{bouncePausePercent}" x-bind:disabled="off">
+                            <span class="text-sm text-slate-600">% of the day's emails</span>
+                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" th:field="*{bouncePauseOff}" x-ref="off" x-on:change="off = $event.target.checked" class="accent-indigo-600"> Off</label>
+                        </div>
+                        <p class="field-error" th:if="${#fields.hasErrors('bouncePausePercent')}" th:errors="*{bouncePausePercent}"></p>
+                    </div>
+                    <div>
+                        <label class="label" for="roleFallback">Role when none is given</label>
+                        <input class="input max-w-sm" id="roleFallback" th:field="*{roleFallback}">
+                        <p class="hint">Fills <code>{role}</code> when neither the uploaded file nor the batch gives one.</p>
+                        <p class="field-error" th:if="${#fields.hasErrors('roleFallback')}" th:errors="*{roleFallback}"></p>
+                    </div>
+                </fieldset>
+
+                <button type="submit" class="btn btn-primary">Save settings</button>
+            </form>
+        </section>
+    </div>
+</main>
+</body>
+</html>

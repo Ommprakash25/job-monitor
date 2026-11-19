@@ -1,0 +1,10 @@
+com\jobmonitor\security\SecretCipherTest.class
+com\jobmonitor\sending\SendingPureLogicTest.class
+com\jobmonitor\masterdata\SendingSettingsTest.class
+com\jobmonitor\MasterDataIntegrationTest.class
+com\jobmonitor\template\TemplateRendererTest.class
+com\jobmonitor\TestDatabase.class
+com\jobmonitor\inbox\InboxRulesTest.class
+com\jobmonitor\config\LocalOnlyRequestFilterTest.class
+com\jobmonitor\mail\JavaMailGatewayTest.class
+com\jobmonitor\sending\UploadParserTest.class

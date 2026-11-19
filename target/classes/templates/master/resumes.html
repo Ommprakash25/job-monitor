@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Resumes')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('master')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div class="flex flex-col gap-8 lg:flex-row">
+        <aside th:replace="~{fragments/layout :: masternav('resumes')}"></aside>
+        <section class="min-w-0 flex-1">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+            <h1 class="text-2xl font-semibold">Resumes</h1>
+            <p class="mt-1 text-sm text-slate-600">Every email gets the active resume. Older versions are kept.</p>
+
+            <form th:action="@{/master/resumes}" method="post" enctype="multipart/form-data" class="card mt-6 flex max-w-3xl flex-wrap items-end gap-4">
+                <div class="min-w-0 flex-1">
+                    <label class="label" for="file">Upload a resume</label>
+                    <input class="input file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1" id="file" name="file" type="file" accept=".pdf,.doc,.docx">
+                    <p class="hint">PDF works best. Word files are accepted. Up to 10 MB.</p>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+
+            <div class="card mt-6 max-w-3xl !p-0">
+                <p th:if="${resumes.isEmpty()}" class="p-6 text-sm text-slate-500">No resumes yet.</p>
+                <table th:unless="${resumes.isEmpty()}" class="w-full text-sm">
+                    <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                    <tr><th class="px-4 py-3">File</th><th class="px-4 py-3">Size</th><th class="px-4 py-3">Uploaded</th><th class="px-4 py-3"></th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                    <tr th:each="r : ${resumes}">
+                        <td class="px-4 py-3">
+                            <a th:href="@{/master/resumes/{id}/file(id=${r.id()})}" target="_blank" class="font-medium text-indigo-700 hover:underline" th:text="${r.fileName()}">cv.pdf</a>
+                            <span th:if="${r.active()}" class="badge ml-2 bg-emerald-100 text-emerald-800">Active</span>
+                        </td>
+                        <td class="px-4 py-3 text-slate-600" th:text="${r.readableSize()}">120 KB</td>
+                        <td class="px-4 py-3 text-slate-600" th:text="${#temporals.format(r.uploadedAt(), 'd MMM yyyy, HH:mm')}">date</td>
+                        <td class="px-4 py-3 text-right">
+                            <div th:unless="${r.active()}" class="flex justify-end gap-2">
+                                <form th:action="@{/master/resumes/{id}/activate(id=${r.id()})}" method="post"><button class="btn btn-secondary !py-1">Make active</button></form>
+                                <form th:action="@{/master/resumes/{id}/delete(id=${r.id()})}" method="post"
+                                      onsubmit="return confirm('Delete this resume?')"><button class="btn btn-danger !py-1">Delete</button></form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

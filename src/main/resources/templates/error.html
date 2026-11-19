@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Something went wrong')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<main class="mx-auto max-w-xl px-4 py-16">
+    <div class="card">
+        <p class="text-sm font-medium text-slate-500" th:text="${status}">500</p>
+        <h1 class="mt-1 text-xl font-semibold" th:text="${status == 404} ? 'That page or item doesn''t exist.' : 'Something went wrong.'">Something went wrong.</h1>
+        <p class="mt-2 text-sm text-slate-600" th:if="${message != null and !#strings.isEmpty(message)}" th:text="${message}">Details</p>
+        <a th:href="@{/}" class="btn btn-primary mt-6">Back to the dashboard</a>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Edit template')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('master')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div class="flex flex-col gap-8 lg:flex-row">
+        <aside th:replace="~{fragments/layout :: masternav('templates')}"></aside>
+        <section class="min-w-0 flex-1">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+            <a th:href="@{/master/templates}" class="text-sm text-indigo-700 hover:underline">← All templates</a>
+            <h1 class="mt-2 text-2xl font-semibold">
+                <span th:text="${form.id == null} ? 'New template' : 'Edit template'">Edit template</span>
+                <span th:if="${isDefault}" class="badge ml-2 bg-indigo-100 align-middle text-indigo-800">Default</span>
+            </h1>
+
+            <form th:action="@{/master/templates}" th:object="${form}" method="post"
+                  class="mt-6 grid gap-6 xl:grid-cols-2"
+                  hx-post="/master/templates/preview" hx-trigger="input changed delay:400ms" hx-target="#preview" hx-swap="outerHTML">
+                <input type="hidden" th:field="*{id}">
+                <div class="card space-y-5">
+                    <div>
+                        <label class="label" for="name">Template name</label>
+                        <input class="input" id="name" th:field="*{name}">
+                        <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                    </div>
+                    <div>
+                        <label class="label" for="subject">Subject</label>
+                        <input class="input" id="subject" th:field="*{subject}">
+                        <p class="field-error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></p>
+                    </div>
+                    <div>
+                        <label class="label" for="body">Email</label>
+                        <textarea class="input font-mono leading-relaxed" id="body" rows="16" th:field="*{body}"></textarea>
+                        <p class="field-error" th:if="${#fields.hasErrors('body')}" th:errors="*{body}"></p>
+                        <ul class="hint list-disc space-y-0.5 pl-4">
+                            <li><code>{name}</code>, <code>{company}</code> and <code>{role}</code> are filled in for each recruiter.</li>
+                            <li>Put <code>**two stars**</code> around a few words to make them bold.</li>
+                            <li>Web addresses become clickable links.</li>
+                            <li>Replace the <code>[square brackets]</code> with your own details.</li>
+                        </ul>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save template</button>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="card">
+                        <h2 class="font-semibold">Preview with a sample recruiter</h2>
+                        <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                            <div><label class="label" for="sampleName">Name</label><input class="input" id="sampleName" th:field="*{sampleName}"></div>
+                            <div><label class="label" for="sampleCompany">Company</label><input class="input" id="sampleCompany" th:field="*{sampleCompany}"></div>
+                            <div><label class="label" for="sampleRole">Role</label><input class="input" id="sampleRole" th:field="*{sampleRole}" placeholder="(fallback)"></div>
+                        </div>
+                    </div>
+                    <div th:replace="~{master/template-preview :: preview}"></div>
+                </div>
+            </form>
+        </section>
+    </div>
+</main>
+</body>
+</html>

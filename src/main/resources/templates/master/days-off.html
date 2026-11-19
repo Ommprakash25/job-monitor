@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Days off')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('master')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div class="flex flex-col gap-8 lg:flex-row">
+        <aside th:replace="~{fragments/layout :: masternav('days-off')}"></aside>
+        <section class="min-w-0 flex-1">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+            <h1 class="text-2xl font-semibold">Days off</h1>
+            <p class="mt-1 text-sm text-slate-600">Nothing is sent on these dates, such as public holidays.</p>
+
+            <form th:action="@{/master/days-off}" th:object="${form}" method="post" class="card mt-6 flex max-w-3xl flex-wrap items-end gap-4">
+                <div>
+                    <label class="label" for="day">Date</label>
+                    <input class="input" id="day" type="date" th:field="*{day}">
+                    <p class="field-error" th:if="${#fields.hasErrors('day')}" th:errors="*{day}"></p>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <label class="label" for="note">Note</label>
+                    <input class="input" id="note" th:field="*{note}" placeholder="Diwali">
+                    <p class="field-error" th:if="${#fields.hasErrors('note')}" th:errors="*{note}"></p>
+                </div>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+
+            <div class="card mt-6 max-w-3xl !p-0">
+                <p th:if="${daysOff.isEmpty()}" class="p-6 text-sm text-slate-500">No days off yet.</p>
+                <ul th:unless="${daysOff.isEmpty()}" class="divide-y divide-slate-100">
+                    <li th:each="d : ${daysOff}" class="flex items-center gap-4 px-4 py-3 text-sm"
+                        th:classappend="${d.day.isBefore(today)} ? 'text-slate-400'">
+                        <span class="w-36 font-medium" th:text="${#temporals.format(d.day, 'EEE d MMM yyyy')}">date</span>
+                        <span class="flex-1" th:text="${d.note}">note</span>
+                        <form th:action="@{/master/days-off/{id}/delete(id=${d.id})}" method="post"><button class="btn btn-danger !py-1">Remove</button></form>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Recruiters')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('recruiters')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <h1 class="text-2xl font-semibold">Recruiters</h1>
+    <p class="mt-1 text-sm text-slate-600">
+        Everyone the app knows about, with their company taken from the email domain.
+        A recruiter marked "Do not contact" is never emailed.
+    </p>
+
+    <div class="mt-6 grid gap-4 lg:grid-cols-2">
+        <form th:action="@{/recruiters/import}" method="post" class="card space-y-3">
+            <label class="label" for="entries">Add recruiters</label>
+            <textarea class="input font-mono" id="entries" name="entries" rows="5"
+                      placeholder="priya.s@example.com, Priya&#10;rahul.k@example.com"></textarea>
+            <p class="hint">One per line. The name is optional and guessed from the address if left out.</p>
+            <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+
+        <div class="card flex flex-col justify-between gap-3">
+            <div>
+                <h2 class="font-semibold">Old recruiter list</h2>
+                <p class="mt-1 text-sm text-slate-600">
+                    The 544 unique addresses from your earlier mailer. They're added with no sending history,
+                    because those emails were sent from another account. Adding them again is safe.
+                </p>
+            </div>
+            <form th:if="${oldListExists}" th:action="@{/recruiters/import-old}" method="post">
+                <button type="submit" class="btn btn-secondary">Import old list</button>
+            </form>
+            <p th:unless="${oldListExists}" class="text-sm text-red-700">The old list file isn't in the project folder.</p>
+        </div>
+    </div>
+
+    <div class="card mt-6 !p-0">
+        <p th:if="${rows.isEmpty()}" class="p-6 text-sm text-slate-500">No recruiters yet.</p>
+        <div th:unless="${rows.isEmpty()}" class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                    <th class="px-4 py-3">Email</th>
+                    <th class="px-4 py-3">Name</th>
+                    <th class="px-4 py-3">Company</th>
+                    <th class="px-4 py-3">From</th>
+                    <th class="px-4 py-3">Emailed</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                <tr th:each="r : ${rows}">
+                    <td class="px-4 py-3 font-medium"><a class="hover:underline" th:href="@{/recruiters/{id}(id=${r.id()})}" th:text="${r.email()}">priya@example.com</a></td>
+                    <td class="px-4 py-3" th:text="${r.name()}">Priya</td>
+                    <td class="px-4 py-3 text-slate-600" th:text="${r.company()}">Infosys</td>
+                    <td class="px-4 py-3 text-slate-500" th:text="${r.source()}">IMPORTED</td>
+                    <td class="px-4 py-3">
+                        <span th:if="${r.emailed()}" class="badge bg-emerald-100 text-emerald-800">Yes</span>
+                        <span th:unless="${r.emailed()}" class="text-slate-400">No</span>
+                        <span th:if="${r.doNotContact()}" class="badge ml-1 bg-red-100 text-red-800">Do not contact</span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <form th:action="@{/recruiters/{id}/do-not-contact(id=${r.id()})}" method="post">
+                            <input type="hidden" name="value" th:value="${!r.doNotContact()}">
+                            <button type="submit" class="btn btn-secondary !py-1"
+                                    th:text="${r.doNotContact()} ? 'Allow' : 'Do not contact'">Do not contact</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

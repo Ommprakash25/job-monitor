@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:fragment="head(title)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · job-monitor'">job-monitor</title>
+    <script th:src="@{/webjars/tailwindcss__browser/dist/index.global.js}"></script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .card { @apply rounded-xl border border-slate-200 bg-white p-6 shadow-xs; }
+            .label { @apply block text-sm font-medium text-slate-700; }
+            .hint { @apply mt-1 text-xs text-slate-500; }
+            .input { @apply mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20; }
+            .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-1; }
+            .btn-primary { @apply bg-indigo-600 text-white hover:bg-indigo-500 focus:ring-indigo-500; }
+            .btn-secondary { @apply border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-400; }
+            .btn-danger { @apply border border-red-200 bg-white text-red-700 hover:bg-red-50 focus:ring-red-400; }
+            .field-error { @apply mt-1 text-xs font-medium text-red-600; }
+            .badge { @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium; }
+        }
+    </style>
+    <script th:src="@{/webjars/htmx.org/dist/htmx.min.js}" defer></script>
+    <script th:src="@{/webjars/alpinejs/dist/cdn.min.js}" defer></script>
+</head>
+<body>
+
+<header th:fragment="topnav(active)" class="border-b border-slate-200 bg-white">
+    <div class="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3 sm:px-6">
+        <a th:href="@{/}" class="flex shrink-0 items-center gap-2 font-semibold text-slate-900">
+            <span class="grid size-8 place-items-center rounded-lg bg-indigo-600 text-sm text-white">jm</span>
+            job-monitor
+        </a>
+        <nav class="flex flex-1 items-center gap-1 overflow-x-auto whitespace-nowrap text-sm">
+            <a th:href="@{/}" class="rounded-md px-3 py-1.5 font-medium"
+               th:classappend="${active == 'dashboard'} ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:text-slate-900'">Dashboard</a>
+            <a th:href="@{/compose}" class="rounded-md px-3 py-1.5 font-medium"
+               th:classappend="${active == 'compose'} ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:text-slate-900'">Compose</a>
+            <a th:href="@{/sent}" class="rounded-md px-3 py-1.5 font-medium"
+               th:classappend="${active == 'sent'} ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:text-slate-900'">Sent</a>
+            <a th:href="@{/recruiters}" class="rounded-md px-3 py-1.5 font-medium"
+               th:classappend="${active == 'recruiters'} ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:text-slate-900'">Recruiters</a>
+            <a th:href="@{/inbox}" class="rounded-md px-3 py-1.5 font-medium"
+               th:classappend="${active == 'inbox'} ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:text-slate-900'">Inbox</a>
+            <span class="cursor-not-allowed rounded-md px-3 py-1.5 text-slate-400" title="Coming in phase 5">Applications</span>
+            <a th:href="@{/jobs}" class="rounded-md px-3 py-1.5 font-medium"
+               th:classappend="${active == 'jobs'} ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:text-slate-900'">Jobs</a>
+            <a th:href="@{/master/profile}" class="rounded-md px-3 py-1.5 font-medium"
+               th:classappend="${active == 'master'} ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:text-slate-900'">Master data</a>
+        </nav>
+        <span th:if="${mailMode != null and mailMode.name() == 'FAKE'}"
+              class="hidden shrink-0 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 ring-1 ring-amber-200 md:inline"
+              title="Emails go to the built-in fake mail server. Gmail is connected in phase 3.">Fake mail: nothing leaves this computer</span>
+    </div>
+</header>
+
+<aside th:fragment="masternav(active)" class="shrink-0 lg:w-56">
+    <nav class="flex gap-1 overflow-x-auto text-sm lg:flex-col">
+        <a th:href="@{/master/profile}" class="whitespace-nowrap rounded-md px-3 py-2"
+           th:classappend="${active == 'profile'} ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-slate-600 hover:bg-slate-100'">Profile</a>
+        <a th:href="@{/master/account}" class="whitespace-nowrap rounded-md px-3 py-2"
+           th:classappend="${active == 'account'} ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-slate-600 hover:bg-slate-100'">Gmail account</a>
+        <a th:href="@{/master/resumes}" class="whitespace-nowrap rounded-md px-3 py-2"
+           th:classappend="${active == 'resumes'} ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-slate-600 hover:bg-slate-100'">Resumes</a>
+        <a th:href="@{/master/templates}" class="whitespace-nowrap rounded-md px-3 py-2"
+           th:classappend="${active == 'templates'} ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-slate-600 hover:bg-slate-100'">Templates</a>
+        <a th:href="@{/master/sending}" class="whitespace-nowrap rounded-md px-3 py-2"
+           th:classappend="${active == 'sending'} ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-slate-600 hover:bg-slate-100'">Sending settings</a>
+        <a th:href="@{/master/days-off}" class="whitespace-nowrap rounded-md px-3 py-2"
+           th:classappend="${active == 'days-off'} ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-slate-600 hover:bg-slate-100'">Days off</a>
+        <a th:href="@{/master/free-mail}" class="whitespace-nowrap rounded-md px-3 py-2"
+           th:classappend="${active == 'free-mail'} ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-slate-600 hover:bg-slate-100'">Free-mail domains</a>
+        <a th:href="@{/master/job-alerts}" class="whitespace-nowrap rounded-md px-3 py-2"
+           th:classappend="${active == 'job-alerts'} ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-slate-600 hover:bg-slate-100'">Job-alert senders</a>
+    </nav>
+</aside>
+
+<div th:fragment="flash" th:if="${notice != null or error != null}"
+     class="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-end gap-2 px-4 sm:inset-x-auto sm:right-4">
+    <div th:if="${notice != null}" x-data="{ open: true }" x-init="setTimeout(() => open = false, 4000)"
+         x-show="open" x-transition.opacity.duration.300ms role="status" aria-live="polite"
+         class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-emerald-200 bg-white px-4 py-3 text-sm text-emerald-900 shadow-lg sm:w-96">
+        <span class="mt-0.5 font-bold text-emerald-600" aria-hidden="true">✓</span>
+        <p class="flex-1" th:text="${notice}">Saved.</p>
+        <button type="button" class="text-emerald-700 hover:text-emerald-900" aria-label="Close message" @click="open = false">×</button>
+    </div>
+    <div th:if="${error != null}" x-data="{ open: true }" x-init="setTimeout(() => open = false, 7000)"
+         x-show="open" x-transition.opacity.duration.300ms role="alert" aria-live="assertive"
+         class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-red-200 bg-white px-4 py-3 text-sm text-red-900 shadow-lg sm:w-96">
+        <span class="mt-0.5 font-bold text-red-600" aria-hidden="true">!</span>
+        <p class="flex-1" th:text="${error}">Error.</p>
+        <button type="button" class="text-red-700 hover:text-red-900" aria-label="Close message" @click="open = false">×</button>
+    </div>
+</div>
+
+</body>
+</html>

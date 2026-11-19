@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.jobmonitor.masterdata.SendingSettingsTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.104 s -- in com.jobmonitor.masterdata.SendingSettingsTest

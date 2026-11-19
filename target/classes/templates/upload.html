@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Upload')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('compose')}"></header>
+<main class="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <a th:href="@{/compose}" class="text-sm text-indigo-700 hover:underline">← Compose</a>
+    <h1 class="mt-2 text-2xl font-semibold">Upload a list</h1>
+    <p class="mt-1 text-sm text-slate-600">
+        An Excel (.xlsx) or CSV file. The first row holds the column names. Only <code>email</code> is required;
+        <code>name</code> and <code>role</code> are used if present. You'll see a preview before anything is queued.
+    </p>
+
+    <p th:unless="${resumeName != null}" class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        No active resume yet. <a th:href="@{/master/resumes}" class="underline">Upload one</a> before you queue emails.
+    </p>
+
+    <form th:action="@{/compose/upload/preview}" method="post" enctype="multipart/form-data" class="card mt-6 space-y-5">
+        <div>
+            <label class="label" for="file">List</label>
+            <input class="input file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1" id="file" name="file" type="file" accept=".xlsx,.csv" required>
+        </div>
+        <div>
+            <label class="label" for="templateId">Template</label>
+            <select class="input" id="templateId" name="templateId">
+                <option th:each="t : ${templates}" th:value="${t.id}" th:selected="${t.defaultTemplate}"
+                        th:text="${t.name} + (${t.defaultTemplate} ? ' (default)' : '')">Starter template</option>
+            </select>
+        </div>
+        <div>
+            <label class="label" for="role">Role for rows with no role</label>
+            <input class="input" id="role" name="role" placeholder="Leave blank to use the fallback in Sending settings">
+        </div>
+        <button type="submit" class="btn btn-primary">Preview</button>
+    </form>
+</main>
+</body>
+</html>

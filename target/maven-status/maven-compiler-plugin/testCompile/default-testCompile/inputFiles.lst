@@ -1,0 +1,10 @@
+D:\job-monitor\src\test\java\com\jobmonitor\config\LocalOnlyRequestFilterTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\inbox\InboxRulesTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\mail\JavaMailGatewayTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\masterdata\SendingSettingsTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\MasterDataIntegrationTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\security\SecretCipherTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\sending\SendingPureLogicTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\sending\UploadParserTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\template\TemplateRendererTest.java
+D:\job-monitor\src\test\java\com\jobmonitor\TestDatabase.java

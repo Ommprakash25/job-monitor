@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Profile')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('master')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div class="flex flex-col gap-8 lg:flex-row">
+        <aside th:replace="~{fragments/layout :: masternav('profile')}"></aside>
+        <section class="min-w-0 flex-1">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+            <h1 class="text-2xl font-semibold">Profile</h1>
+            <p class="mt-1 text-sm text-slate-600">The person applying.</p>
+
+            <form th:action="@{/master/profile}" th:object="${form}" method="post" class="card mt-6 max-w-2xl space-y-5">
+                <div>
+                    <label class="label" for="fullName">Full name</label>
+                    <input class="input" id="fullName" th:field="*{fullName}" placeholder="Priya Sharma">
+                    <p class="hint">Recruiters see it as the sender: "Priya Sharma &lt;you@gmail.com&gt;".</p>
+                    <p class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
+                </div>
+                <div>
+                    <label class="label" for="phone">Phone</label>
+                    <input class="input" id="phone" th:field="*{phone}" placeholder="+91 98765 43210">
+                    <p class="field-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+                </div>
+                <div>
+                    <label class="label" for="signature">Signature</label>
+                    <textarea class="input font-mono" id="signature" rows="4" th:field="*{signature}"></textarea>
+                    <p class="hint">Optional. It isn't added to emails by itself; copy it into a template if you want it there.</p>
+                    <p class="field-error" th:if="${#fields.hasErrors('signature')}" th:errors="*{signature}"></p>
+                </div>
+                <button type="submit" class="btn btn-primary">Save profile</button>
+            </form>
+        </section>
+    </div>
+</main>
+</body>
+</html>

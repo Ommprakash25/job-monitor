@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Sent')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('sent')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-semibold">Sent</h1>
+            <p class="mt-1 text-sm text-slate-600">Every email queued, sent, skipped or failed, exactly as written.
+                <a th:href="@{/sent/export.xlsx}" class="text-indigo-700 hover:underline">Export to Excel</a></p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span th:if="${paused}" class="badge bg-amber-100 text-amber-800">Paused</span>
+            <span th:unless="${paused}" class="badge bg-emerald-100 text-emerald-800">Sending</span>
+            <form th:if="${paused}" th:action="@{/sent/resume}" method="post">
+                <button type="submit" class="btn btn-primary">Start sending</button>
+            </form>
+            <form th:unless="${paused}" th:action="@{/sent/pause}" method="post">
+                <button type="submit" class="btn btn-secondary">Pause</button>
+            </form>
+        </div>
+    </div>
+
+    <p th:if="${paused and pauseReason != null}" class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" th:text="${pauseReason}">Paused automatically.</p>
+
+    <div class="mt-6 grid gap-3 sm:grid-cols-3">
+        <div class="card !p-4">
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Sent today</p>
+            <p class="mt-1 text-2xl font-semibold"><span th:text="${sentToday}">0</span> <span class="text-base font-normal text-slate-500">of <span th:text="${dailyLimit}">15</span></span></p>
+        </div>
+        <div class="card !p-4">
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Waiting to send</p>
+            <p class="mt-1 text-2xl font-semibold" th:text="${queued}">0</p>
+        </div>
+        <div class="card !p-4">
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Next email</p>
+            <p class="mt-1 text-lg font-semibold" th:if="${nextSend != null and !paused}" th:text="${nextSend}">14:37</p>
+            <p class="mt-1 text-sm text-slate-500" th:unless="${nextSend != null and !paused}"
+               th:text="${paused} ? 'Paused. Press Start sending when you\'re ready.' : 'Picked up at the next sending time.'">-</p>
+        </div>
+    </div>
+
+    <div class="card mt-6 !p-0">
+        <p th:if="${rows.isEmpty()}" class="p-6 text-sm text-slate-500">Nothing queued or sent yet. Use <a th:href="@{/compose}" class="text-indigo-700 underline">Compose</a> to add recruiters.</p>
+        <div th:unless="${rows.isEmpty()}" class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                    <th class="px-4 py-3">When</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">To</th>
+                    <th class="px-4 py-3">Company</th>
+                    <th class="px-4 py-3">Subject</th>
+                    <th class="px-4 py-3">Note</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                <tr th:each="r : ${rows}">
+                    <td class="whitespace-nowrap px-4 py-3 text-slate-600" th:text="${r.when()}">date</td>
+                    <td class="px-4 py-3">
+                        <span class="badge"
+                              th:classappend="${r.status() == 'SENT'} ? 'bg-emerald-100 text-emerald-800' : (${r.status() == 'QUEUED'} ? 'bg-sky-100 text-sky-800' : (${r.status() == 'FAILED'} ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-700'))"
+                              th:text="${#strings.capitalize(#strings.toLowerCase(r.status()))}">Sent</span>
+                    </td>
+                    <td class="px-4 py-3" th:text="${r.to()}">priya@example.com</td>
+                    <td class="px-4 py-3 text-slate-600" th:text="${r.company()}">Infosys</td>
+                    <td class="max-w-xs truncate px-4 py-3" th:text="${r.subject()}">Application for …</td>
+                    <td class="px-4 py-3 text-slate-500" th:text="${r.note() ?: (r.attachment() ?: '')}">cv.pdf</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

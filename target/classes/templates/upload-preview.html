@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Upload preview')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('compose')}"></header>
+<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <a th:href="@{/compose/upload}" class="text-sm text-indigo-700 hover:underline">← Upload another list</a>
+    <h1 class="mt-2 text-2xl font-semibold">Check the list</h1>
+    <p class="mt-1 text-sm text-slate-600">
+        <span th:text="${fileName}">list.xlsx</span> with template <span class="font-medium" th:text="${templateName}">Starter</span>.
+        <span class="font-semibold" th:text="${ready}">0</span> ready to queue,
+        <span th:text="${notReady}">0</span> left out.
+    </p>
+
+    <div class="card mt-6 !p-0">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                    <th class="px-4 py-3">Row</th>
+                    <th class="px-4 py-3">Email</th>
+                    <th class="px-4 py-3">Name</th>
+                    <th class="px-4 py-3">Company</th>
+                    <th class="px-4 py-3">Role</th>
+                    <th class="px-4 py-3">Status</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                <tr th:each="p : ${previews}">
+                    <td class="px-4 py-2 text-slate-500" th:text="${p.line()}">2</td>
+                    <td class="px-4 py-2" th:text="${p.email()}">priya@example.com</td>
+                    <td class="px-4 py-2" th:text="${p.name()}">Priya</td>
+                    <td class="px-4 py-2 text-slate-600" th:text="${p.company()}">Infosys</td>
+                    <td class="px-4 py-2 text-slate-600" th:text="${p.role()}">Software Engineer</td>
+                    <td class="px-4 py-2">
+                        <span class="badge" th:classappend="${p.ready()} ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'"
+                              th:text="${p.status()}">Ready</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form th:action="@{/compose/upload/confirm}" method="post" class="mt-6 flex flex-wrap items-center gap-4">
+        <input type="hidden" name="rowsJson" th:value="${rowsJson}">
+        <input type="hidden" name="templateId" th:value="${templateId}">
+        <input type="hidden" name="role" th:value="${role}">
+        <button type="submit" class="btn btn-primary" th:disabled="${ready == 0}">
+            Queue <span th:text="${ready}">0</span> ready
+        </button>
+        <p class="text-sm text-slate-500">Queued emails are sent later, by your sending rules. Nothing is sent from this page.</p>
+    </form>
+</main>
+</body>
+</html>

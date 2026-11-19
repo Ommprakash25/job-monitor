@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Templates')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('master')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div class="flex flex-col gap-8 lg:flex-row">
+        <aside th:replace="~{fragments/layout :: masternav('templates')}"></aside>
+        <section class="min-w-0 flex-1">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-semibold">Templates</h1>
+                    <p class="mt-1 text-sm text-slate-600">The default template is used unless you pick another.</p>
+                </div>
+                <a th:href="@{/master/templates/new}" class="btn btn-primary">New template</a>
+            </div>
+
+            <ul class="mt-6 max-w-3xl space-y-3">
+                <li th:each="t : ${templates}" class="card flex flex-wrap items-center gap-4 !p-4">
+                    <div class="min-w-0 flex-1">
+                        <p class="font-medium">
+                            <span th:text="${t.name}">Name</span>
+                            <span th:if="${t.defaultTemplate}" class="badge ml-2 bg-indigo-100 text-indigo-800">Default</span>
+                        </p>
+                        <p class="truncate text-sm text-slate-600" th:text="${t.subject}">Subject</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a th:href="@{/master/templates/{id}(id=${t.id})}" class="btn btn-secondary !py-1">Edit</a>
+                        <form th:unless="${t.defaultTemplate}" th:action="@{/master/templates/{id}/default(id=${t.id})}" method="post"><button class="btn btn-secondary !py-1">Make default</button></form>
+                        <form th:unless="${t.defaultTemplate}" th:action="@{/master/templates/{id}/delete(id=${t.id})}" method="post"
+                              onsubmit="return confirm('Delete this template?')"><button class="btn btn-danger !py-1">Delete</button></form>
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </div>
+</main>
+</body>
+</html>

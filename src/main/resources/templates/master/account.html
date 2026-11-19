@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full">
+<head th:replace="~{fragments/layout :: head('Gmail account')}"></head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased">
+<header th:replace="~{fragments/layout :: topnav('master')}"></header>
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div class="flex flex-col gap-8 lg:flex-row">
+        <aside th:replace="~{fragments/layout :: masternav('account')}"></aside>
+        <section class="min-w-0 flex-1">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+            <h1 class="text-2xl font-semibold">Gmail account</h1>
+            <p class="mt-1 text-sm text-slate-600">The mailbox that sends your applications and receives replies.</p>
+
+            <div th:if="${mailMode.name() == 'FAKE'}" class="mt-4 max-w-2xl rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                Fake mail mode: the address and password only sign in to the built-in fake mail server.
+                Nothing goes to Gmail until phase 3, so any Gmail address works for trying things out.
+            </div>
+
+            <div th:if="${account != null}" class="card mt-6 max-w-2xl">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <p class="font-medium" th:text="${account.emailAddress}">you@gmail.com</p>
+                        <p class="text-sm" th:if="${account.lastCheckOk == null}"><span class="text-slate-500">Not tested yet.</span></p>
+                        <p class="text-sm" th:if="${account.lastCheckOk != null}"
+                           th:classappend="${account.lastCheckOk} ? 'text-emerald-700' : 'text-red-700'"
+                           th:text="${account.lastCheckMessage}">Result</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <form th:action="@{/master/account/check}" method="post"><button class="btn btn-secondary">Test sign-in</button></form>
+                        <form th:action="@{/master/account/test-email}" method="post"><button class="btn btn-secondary">Send test email to myself</button></form>
+                        <form th:action="@{/master/account/remove}" method="post"
+                              onsubmit="return confirm('Remove this Gmail account and its saved password?')"><button class="btn btn-danger">Remove</button></form>
+                    </div>
+                </div>
+            </div>
+
+            <form th:action="@{/master/account}" th:object="${form}" method="post" class="card mt-6 max-w-2xl space-y-5">
+                <h2 class="font-semibold" th:text="${account == null} ? 'Add the account' : 'Change address or password'">Add</h2>
+                <div>
+                    <label class="label" for="emailAddress">Gmail address</label>
+                    <input class="input" id="emailAddress" type="email" th:field="*{emailAddress}" placeholder="you@gmail.com" autocomplete="off">
+                    <p class="field-error" th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}"></p>
+                </div>
+                <div>
+                    <label class="label" for="password">App password</label>
+                    <input class="input" id="password" type="password" th:field="*{password}" autocomplete="new-password"
+                           th:placeholder="${account != null and account.hasSecret()} ? '•••••••• saved (leave blank to keep it)' : 'abcd efgh ijkl mnop'">
+                    <p class="hint">A Gmail app password (needs 2-Step Verification), not your normal Google password. It's stored encrypted and never shown again.</p>
+                    <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </section>
+    </div>
+</main>
+</body>
+</html>
